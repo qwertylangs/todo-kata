@@ -3,11 +3,10 @@ import nextId from "react-id-generator"
 
 import TaskFilter from "./TasksFilter"
 
-function Footer(props) {
-  const { activeTasks, activeFilter, onChangeFilter, onClearComplited } = props
+function Footer({ activeTasksCount, activeFilter, onChangeFilter, onClearComplited }) {
   return (
     <footer className="footer">
-      <span className="todo-count">{activeTasks} items left</span>
+      <span className="todo-count">{activeTasksCount} items left</span>
       <ul className="filters">
         {["All", "Active", "Completed"].map((filterName) => (
           <TaskFilter
@@ -26,7 +25,7 @@ function Footer(props) {
 }
 
 Footer.propTypes = {
-  activeTasks: PropTypes.number.isRequired,
+  activeTasksCount: PropTypes.number.isRequired,
   activeFilter: PropTypes.string.isRequired,
   onChangeFilter: PropTypes.func.isRequired,
   onClearComplited: PropTypes.func.isRequired,

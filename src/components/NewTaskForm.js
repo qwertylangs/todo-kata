@@ -26,7 +26,7 @@ function NewTaskForm({ onNewTask }) {
 
     const { task, min, sec } = state
     const time = min * 60 + +sec
-    if (!state.task.trim() || !time) return
+    if (!state.task.trim() || !time || time > 86400) return
 
     onNewTask({ task, time })
     dispatch({ type: "task", payload: "" })

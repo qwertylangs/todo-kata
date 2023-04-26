@@ -1,112 +1,110 @@
-import { Component } from "react"
+import { useState, useReducer } from "react"
 import nextId from "react-id-generator"
 
 import NewTaskForm from "./NewTaskForm"
 import TaskList from "./TastList"
 import Footer from "./Footer"
 
-class App extends Component {
-  static filterTasks(tasks, activeFilter) {
-    const sortedTasks = tasks.sort((prev, curr) => curr.creationDate - prev.creationDate)
-
-    if (activeFilter === "All") return sortedTasks
-    if (activeFilter === "Active") {
-      return sortedTasks.filter(({ completed }) => !completed)
+function reducerTasks(state, { type, payload }) {
+  switch (type) {
+    case "addTask": {
+      return [...state, payload]
     }
-    if (activeFilter === "Completed") {
-      return sortedTasks.filter(({ completed }) => completed)
-    }
-    throw new Error("not right filter")
-  }
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      tasks: [],
-      activeFilter: "All",
-    }
-  }
-
-  onEditTask = (id, descr) => {
-    this.setState(({ tasks }) => ({
-      tasks: tasks.map((task) => {
-        if (id === task.id) return { ...task, editing: false, descr }
+    case "editTask": {
+      return state.map((task) => {
+        if (payload.id === task.id) return { ...task, editing: false, descr: payload.descr }
         return task
-      }),
-    }))
-  }
+      })
+    }
 
-  onToggleTask = (id, prop) => {
-    this.setState(({ tasks }) => ({
-      tasks: tasks.map((task) => {
-        if (id === task.id) return { ...task, [prop]: !task[prop] }
+    case "toggleTask": {
+      return state.map((task) => {
+        if (payload.id === task.id) return { ...task, [payload.toggler]: !task[payload.toggler] }
         return { ...task }
-      }),
-    }))
-  }
+      })
+    }
 
-  onDeleteTask = (id) => {
-    this.setState(({ tasks }) => ({
-      tasks: tasks.filter((task) => task.id !== id),
-    }))
-  }
+    case "deleteTask": {
+      return state.filter((task) => task.id !== payload.id)
+    }
 
-  onNewTask = ({ task, time }) => {
-    this.setState(({ tasks }) => ({
-      tasks: [
-        ...tasks,
-        {
-          descr: task,
-          id: nextId(),
-          completed: false,
-          editing: false,
-          time,
-          creationDate: Date.now(),
-        },
-      ],
-    }))
-  }
+    case "clearComplited": {
+      return state.filter(({ completed }) => !completed)
+    }
 
-  onChangeFilter = (filterName) => {
-    this.setState({
-      activeFilter: filterName,
+    default:
+      throw new Error("not right action")
+  }
+}
+
+function App() {
+  const [stateTasks, dispatchTasks] = useReducer(reducerTasks, [])
+  const [activeFilter, setActiveFilter] = useState("All")
+
+  const onNewTask = ({ task, time }) => {
+    dispatchTasks({
+      type: "addTask",
+      payload: {
+        descr: task,
+        id: nextId(),
+        completed: false,
+        editing: false,
+        time,
+        creationDate: Date.now(),
+      },
     })
   }
 
-  onClearComplited = () => {
-    this.setState(({ tasks }) => ({
-      tasks: tasks.filter(({ completed }) => !completed),
-    }))
+  const onEditTask = (id, descr) => {
+    dispatchTasks({ type: "editTask", payload: { id, descr } })
+  }
+  const onToggleTask = (id, toggler) => {
+    dispatchTasks({ type: "toggleTask", payload: { id, toggler } })
+  }
+  const onDeleteTask = (id) => {
+    dispatchTasks({ type: "deleteTask", payload: { id } })
+  }
+  const onClearComplited = () => {
+    dispatchTasks({ type: "clearComplited" })
   }
 
-  render() {
-    const { tasks, activeFilter } = this.state
+  const onChangeFilter = (filterName) => {
+    setActiveFilter(filterName)
+  }
 
-    const activeTasks = tasks.filter(({ completed }) => !completed).length
+  const filterTasks = () => {
+    const sortedTasks = stateTasks.sort((prev, curr) => curr.creationDate - prev.creationDate)
 
-    const filteredTasks = App.filterTasks(tasks, activeFilter)
+    switch (activeFilter) {
+      case "All":
+        return sortedTasks
+      case "Active":
+        return sortedTasks.filter(({ completed }) => !completed)
+      case "Completed":
+        return sortedTasks.filter(({ completed }) => completed)
+      default:
+        throw new Error("not right filter")
+    }
+  }
 
-    return (
-      <section className="todoapp">
-        <NewTaskForm onNewTask={this.onNewTask} />
-        <section className="main">
-          <TaskList
-            tasks={filteredTasks}
-            onEditTask={this.onEditTask}
-            onToggleTask={this.onToggleTask}
-            onDeleteTask={this.onDeleteTask}
-          />
-          <Footer
-            activeTasks={activeTasks}
-            activeFilter={activeFilter}
-            onChangeFilter={this.onChangeFilter}
-            onClearComplited={this.onClearComplited}
-          />
-        </section>
+  const tasks = filterTasks()
+  const activeTasksCount = tasks.filter(({ completed }) => !completed).length
+
+  return (
+    <section className="todoapp">
+      <NewTaskForm onNewTask={onNewTask} />
+      <section className="main">
+        <TaskList tasks={tasks} onEditTask={onEditTask} onToggleTask={onToggleTask} onDeleteTask={onDeleteTask} />
+        <Footer
+          activeTasksCount={activeTasksCount}
+          activeFilter={activeFilter}
+          onChangeFilter={onChangeFilter}
+          onClearComplited={onClearComplited}
+        />
       </section>
-    )
-  }
+    </section>
+  )
 }
 
 export default App
