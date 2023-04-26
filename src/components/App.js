@@ -7,12 +7,14 @@ import Footer from "./Footer"
 
 class App extends Component {
   static filterTasks(tasks, activeFilter) {
-    if (activeFilter === "All") return tasks
+    const sortedTasks = tasks.sort((prev, curr) => curr.creationDate - prev.creationDate)
+
+    if (activeFilter === "All") return sortedTasks
     if (activeFilter === "Active") {
-      return tasks.filter(({ completed }) => !completed)
+      return sortedTasks.filter(({ completed }) => !completed)
     }
     if (activeFilter === "Completed") {
-      return tasks.filter(({ completed }) => completed)
+      return sortedTasks.filter(({ completed }) => completed)
     }
     throw new Error("not right filter")
   }
@@ -50,15 +52,16 @@ class App extends Component {
     }))
   }
 
-  onNewTask = (descr) => {
+  onNewTask = ({ task, time }) => {
     this.setState(({ tasks }) => ({
       tasks: [
         ...tasks,
         {
-          descr,
+          descr: task,
           id: nextId(),
           completed: false,
           editing: false,
+          time,
           creationDate: Date.now(),
         },
       ],
