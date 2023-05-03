@@ -1,25 +1,20 @@
 import classNames from "classnames"
 import formatDistanceToNow from "date-fns/formatDistanceToNow"
 import PropTypes from "prop-types"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+
+import useInterval from "../utils/useInterval"
 
 function Task({ task: { descr, completed, editing, creationDate, id, time }, onEditTask, onToggleTask, onDeleteTask }) {
   const [remaining, setRemaining] = useState(time)
   const [pause, setPause] = useState(true)
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (pause) {
-        return
-      }
-      if (remaining <= 0) {
-        clearInterval(timer)
-        return
-      }
+  useInterval(
+    () => {
       setRemaining((prev) => (prev <= 0 ? 0 : prev - 1))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [pause])
+    },
+    remaining <= 0 || pause ? null : 1000
+  )
 
   const getTime = () => {
     let remainingTime = remaining
