@@ -1,24 +1,24 @@
 import { Component } from "react"
 import nextId from "react-id-generator"
 
-import NewTaskForm from "./NewTaskForm"
-import TaskList from "./TastList"
-import Footer from "./Footer"
+import { NewTaskForm } from "./components/NewTaskForm"
+import { TaskList } from "./components/TastList"
+import { Footer } from "./components/Footer"
 
-class App extends Component {
-  static filterTasks(tasks, activeFilter) {
-    const sortedTasks = tasks.sort((prev, curr) => curr.creationDate - prev.creationDate)
+function filterTasks(tasks, activeFilter) {
+  const sortedTasks = tasks.sort((prev, curr) => curr.creationDate - prev.creationDate)
 
-    if (activeFilter === "All") return sortedTasks
-    if (activeFilter === "Active") {
-      return sortedTasks.filter(({ completed }) => !completed)
-    }
-    if (activeFilter === "Completed") {
-      return sortedTasks.filter(({ completed }) => completed)
-    }
-    throw new Error("not right filter")
+  if (activeFilter === "All") return sortedTasks
+  if (activeFilter === "Active") {
+    return sortedTasks.filter(({ completed }) => !completed)
   }
+  if (activeFilter === "Completed") {
+    return sortedTasks.filter(({ completed }) => completed)
+  }
+  throw new Error("not right filter")
+}
 
+export class App extends Component {
   constructor(props) {
     super(props)
 
@@ -85,7 +85,7 @@ class App extends Component {
 
     const activeTasks = tasks.filter(({ completed }) => !completed).length
 
-    const filteredTasks = App.filterTasks(tasks, activeFilter)
+    const filteredTasks = filterTasks(tasks, activeFilter)
 
     return (
       <section className="todoapp">
@@ -108,5 +108,3 @@ class App extends Component {
     )
   }
 }
-
-export default App

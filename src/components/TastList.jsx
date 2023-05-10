@@ -1,8 +1,8 @@
 import PropTypes from "prop-types"
 
-import Task from "./Task"
+import { Task } from "./Task"
 
-function TaskList(props) {
+export function TaskList(props) {
   const { tasks, onEditTask, onToggleTask, onDeleteTask } = props
   return (
     <ul className="todo-list">
@@ -24,5 +24,3 @@ TaskList.propTypes = {
   onToggleTask: PropTypes.func.isRequired,
   onDeleteTask: PropTypes.func.isRequired,
 }
-
-export default TaskList

@@ -1,10 +1,9 @@
 import PropTypes from "prop-types"
 import nextId from "react-id-generator"
 
-import TaskFilter from "./TasksFilter"
+import { TaskFilter } from "./TasksFilter"
 
-function Footer(props) {
-  const { activeTasks, activeFilter, onChangeFilter, onClearComplited } = props
+export function Footer({ activeTasks, activeFilter, onChangeFilter, onClearComplited }) {
   return (
     <footer className="footer">
       <span className="todo-count">{activeTasks} items left</span>
@@ -31,5 +30,3 @@ Footer.propTypes = {
   onChangeFilter: PropTypes.func.isRequired,
   onClearComplited: PropTypes.func.isRequired,
 }
-
-export default Footer

@@ -1,8 +1,7 @@
 import classNames from "classnames"
 import PropTypes from "prop-types"
 
-function TaskFilter(props) {
-  const { activeFilter, filterName, onChangeFilter } = props
+export function TaskFilter({ activeFilter, filterName, onChangeFilter }) {
   const style = classNames({
     selected: activeFilter === filterName,
   })
@@ -26,5 +25,3 @@ TaskFilter.propTypes = {
   filterName: PropTypes.string.isRequired,
   onChangeFilter: PropTypes.func.isRequired,
 }
-
-export default TaskFilter

@@ -1,42 +1,39 @@
 import classNames from "classnames"
 import formatDistanceToNow from "date-fns/formatDistanceToNow"
 import PropTypes from "prop-types"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
-function Task(props) {
-  const {
-    task: { descr, completed, editing, creationDate, id, time },
-    onEditTask,
-    onToggleTask,
-    onDeleteTask,
-  } = props
+import useInterval from "../utils/useInterval"
 
+export function Task({
+  task: { descr, completed, editing, creationDate, id, time },
+  onEditTask,
+  onToggleTask,
+  onDeleteTask,
+}) {
   const [remaining, setRemaining] = useState(time)
   const [pause, setPause] = useState(true)
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (remaining <= 0) {
-        clearInterval(timer)
-        return
-      }
-      if (pause) {
-        return
-      }
+  useInterval(
+    () => {
       setRemaining((prev) => (prev <= 0 ? 0 : prev - 1))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [pause])
+    },
+    remaining <= 0 || pause ? null : 1000
+  )
 
   const getTime = () => {
-    const min = Math.floor(remaining / 60) > 9 ? Math.floor(remaining / 60) : `0${Math.floor(remaining / 60)}`
-    const sec = remaining % 60 > 9 ? remaining % 60 : `0${remaining % 60}`
-    return `${min}:${sec}`
+    let remainingTime = remaining
+    const hours =
+      Math.floor(remainingTime / 3600) > 9 ? Math.floor(remainingTime / 3600) : `0${Math.floor(remainingTime / 3600)}`
+
+    remainingTime %= 3600
+    const min =
+      Math.floor(remainingTime / 60) > 9 ? Math.floor(remainingTime / 60) : `0${Math.floor(remainingTime / 60)}`
+
+    remainingTime %= 60
+    const sec = remainingTime % 60 > 9 ? remainingTime % 60 : `0${remainingTime % 60}`
+    return hours === "00" ? `${min}:${sec}` : `${hours}:${min}:${sec}`
   }
-
-  const passedTime = formatDistanceToNow(creationDate)
-
-  const liClassNames = classNames({ completed, editing })
 
   const handleComplete = (e) => {
     if (e.target.tagName === "BUTTON" || editing) return
@@ -53,6 +50,9 @@ function Task(props) {
     if (completed) return
     onToggleTask("editing")
   }
+
+  const passedTime = formatDistanceToNow(creationDate)
+  const liClassNames = classNames({ completed, editing })
 
   return (
     <li className={liClassNames}>
@@ -96,5 +96,3 @@ Task.propTypes = {
   onToggleTask: PropTypes.func.isRequired,
   onDeleteTask: PropTypes.func.isRequired,
 }
-
-export default Task
